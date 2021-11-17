@@ -11,7 +11,8 @@
     "lint": "eslint ./src --ext js"
   },
   "dependencies": {
-    "husky": "^7.0.1"
+    "husky": "^7.0.1",
+    "puppeteer": "^11.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
