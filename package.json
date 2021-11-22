@@ -1,14 +1,16 @@
 {
-  "name": "ProfileKeeper-be",
+  "name": "ItaloTurkBook",
+  "description": "Simple automated italo book for carnet using puppeteer",
   "version": "1.0.0",
   "main": "./src/index.js",
-  "repository": "https://github.com/CatMonster/ProfileKeeper-be",
-  "author": "St1nkers team",
+  "repository": "https://github.com/CatMonster/ItaloTurkBook",
+  "author": "CatMonster",
   "license": "MIT",
   "scripts": {
     "start": "nodemon ./src/index.js --exec babel-node --presets babel-preset-env",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint ./src --ext js"
+    "lint": "eslint ./src --ext js",
+    "prepare": "husky install"
   },
   "dependencies": {
     "puppeteer": "^11.0.0"
