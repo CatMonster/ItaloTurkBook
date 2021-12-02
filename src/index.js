@@ -1,46 +1,38 @@
 import puppeteer from 'puppeteer'
-import dotenv from 'dotenv'
 
-// Loads .env file variables
-dotenv.config()
+import login, { isUserLoggedIn } from './actions/login'
+import book from './actions/book'
 
 main()
 
 async function main() {
   // .env vars
-  const { DEBUG, PAGE_W, PAGE_H, ITALO_LOGIN_USERNAME, ITALO_LOGIN_PASSWORD } = process.env
+  const { DEBUG, PAGE_W, PAGE_H, CHROME_PATH, PROFILE_PATH } = process.env
 
   // Init chromium instance
   const browser = await puppeteer.launch({
     headless: Boolean(!DEBUG),
     args: [`--window-size=${PAGE_W},${PAGE_H}`],
+    executablePath: CHROME_PATH,
+    userDataDir: PROFILE_PATH,
   })
   const page = await browser.newPage()
-  await page.setViewport({ width: 1366, height: 768 })
+  await page.setViewport({ width: parseInt(PAGE_W), height: parseInt(PAGE_H) })
 
   // -------------------------
   // NSFW things start here 😏
   // -------------------------
+  await page.goto('https://biglietti.italotreno.it/Booking_Acquisto_Ricerca.aspx')
 
-  // Open italo login page and wait until there are no more than 0 network connections for at least 500 ms.
-  await page.goto('https://biglietti.italotreno.it/Booking_Acquisto_Ricerca.aspx', { waitUntil: 'networkidle0' })
+  const loggedIn = await isUserLoggedIn(page)
+  console.log(`Login status: ${loggedIn}`)
+  if (!loggedIn) {
+    console.log('User not logged in, trying to logging user in')
+    await login(page)
+  }
 
-  // Open login popup
-  await page.click( '.italo_button_red.fancybox')
-  
-  // Fill out login credentials and clicks login button
-  await page.type('#MasterHeaderRestylingBookingAcquistoRicercaView_MasterHeaderGlobalMenuRestylingBookingAcquistoRicercaView_MasterHeaderGlobalMenuMemberLoginRestylingBookingAcquistoRicercaView_TextBoxUserID', ITALO_LOGIN_USERNAME)
-  await page.type('#MasterHeaderRestylingBookingAcquistoRicercaView_MasterHeaderGlobalMenuRestylingBookingAcquistoRicercaView_MasterHeaderGlobalMenuMemberLoginRestylingBookingAcquistoRicercaView_PasswordFieldPassword', ITALO_LOGIN_PASSWORD)
-  await page.$eval('#MasterHeaderRestylingBookingAcquistoRicercaView_MasterHeaderGlobalMenuRestylingBookingAcquistoRicercaView_MasterHeaderGlobalMenuMemberLoginRestylingBookingAcquistoRicercaView_ButtonLogIn', form => form.click())
-  
-  // Wait until user is logged by html checking user menu
-  await page.waitForSelector('.adacto.ada-user-button.ada-user-button-social', { visible: true, timeout: 0 })
-  
-  // Open carnet page
-  await page.goto('https://biglietti.italotreno.it/Customer_Account_MieiAcquisti_MieiCarnet.aspx', { waitUntil: 'networkidle0' })
+  await book(page)
 
-  // TODO - Verify pagination order
-
-  // Click on "Prenota" button
-  await page.click('._inl-ctaButton._inl-ctaBlock')
+  // Close page
+  // page.close()
 }
