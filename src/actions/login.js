@@ -1,6 +1,6 @@
 const { ITALO_LOGIN_USERNAME, ITALO_LOGIN_PASSWORD } = process.env
 
-export default async function login(page) {
+async function login(page) {
   const loginPage = 'https://biglietti.italotreno.it/Booking_Acquisto_Ricerca.aspx'
 
   if (page.url() !== loginPage) {
@@ -48,7 +48,7 @@ export default async function login(page) {
   }
 }
 
-export async function isUserLoggedIn(page) {
+async function isUserLoggedIn(page) {
   console.log('Checking if user is loggend in')
   try {
     const loginMenu = await page.waitForSelector('.loginSection', { timeout: 2000 })
@@ -61,3 +61,6 @@ export async function isUserLoggedIn(page) {
     return false
   }
 }
+
+exports.login = login
+exports.isUserLoggedIn = isUserLoggedIn

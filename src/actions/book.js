@@ -1,4 +1,4 @@
-export default async function book(page) {
+async function book(page) {
   await page.goto('https://biglietti.italotreno.it/Customer_Account_MieiAcquisti_MieiCarnet.aspx')
   // Click on "Prenota" button
   try {
@@ -14,3 +14,5 @@ export default async function book(page) {
   const radioButtons = await page.$$('.risposta input')
   await radioButtons[1].evaluate((radio) => radio.click())
 }
+
+exports.book = book

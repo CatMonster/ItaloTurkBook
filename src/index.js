@@ -1,11 +1,11 @@
-import puppeteer from 'puppeteer'
+'use strict'
 
-import login, { isUserLoggedIn } from './actions/login'
-import book from './actions/book'
+const puppeteer = require('puppeteer')
 
-main()
+const { login, isUserLoggedIn } = require('./actions/login')
+const { book } = require('./actions/book')
 
-async function main() {
+;(async function main() {
   // .env vars
   const { DEBUG, PAGE_W, PAGE_H, CHROME_PATH, PROFILE_PATH } = process.env
 
@@ -35,4 +35,4 @@ async function main() {
 
   // Close page
   // page.close()
-}
+})()
