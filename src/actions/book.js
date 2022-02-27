@@ -12,10 +12,10 @@ async function book(page) {
   await page.waitForTimeout(1000)
   await page.waitForSelector('.risposta', { visible: true, timeout: 0 })
   const radioButtons = await page.$$('.risposta input')
-  await radioButtons[0].evaluate((radio) => radio.click())
+  await radioButtons[1].evaluate((radio) => radio.click())
 
-  await dateSelector(page, new Date('10 marzo 2022'))
-  await trainSelector(page, '8970')
+  await dateSelector(page, new Date('28 febbraio 2022'))
+  await trainSelector(page, '8993')
   await personalInfosFill(page, { phone: '3338749273' })
 }
 
@@ -110,8 +110,14 @@ async function dateSelector(page, date) {
 async function trainSelector(page, trainNumber) {
   await page.waitForSelector('.lista-treni', { visible: true, timeout: 0 })
   const trainNode = await page.$(`.lista-treni [data-train-number="${trainNumber}"]`)
-  if (trainNode.length === 0) {
+  if (!trainNode) {
     console.error("Error, can't select trip, requested train not found")
+    return
+  }
+
+  const isTrainAvailable = await page.$$(`.lista-treni .no-charge[data-train-number="${trainNumber}"]`)
+  if (isTrainAvailable && isTrainAvailable.length > 0) {
+    console.error("Error, can't select trip, requested train has no seats left")
     return
   }
 
