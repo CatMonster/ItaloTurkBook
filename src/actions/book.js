@@ -16,6 +16,7 @@ async function book(page) {
 
   await dateSelector(page, new Date('10 marzo 2022'))
   await trainSelector(page, '8970')
+  await personalInfosFill(page, { phone: '3338749273' })
 }
 
 async function dateSelector(page, date) {
@@ -125,6 +126,21 @@ async function trainSelector(page, trainNumber) {
   // Continue to next page
   const continueButton = await page.$(`.lista-treni [data-train-number="${trainNumber}"] .btn-prosegui`)
   continueButton.evaluate((el) => el.click())
+}
+
+async function personalInfosFill(page, { phone = '' }) {
+  await page.waitForSelector('#BookingPasseggeriRestylingBookingPasseggeriView_ButtonSubmit', {
+    visible: true,
+    timeout: 0,
+  })
+
+  await page.type(
+    '#BookingPasseggeriRestylingBookingPasseggeriView_BookingPasseggeriPassengerInputRestylingBookingPasseggeriView_TextBoxPassengerAddressPhone_0_0',
+    phone,
+  )
+
+  const paymentPage = await page.$('#BookingPasseggeriRestylingBookingPasseggeriView_ButtonSubmit')
+  paymentPage.evaluate((el) => el.click())
 }
 
 exports.book = book
