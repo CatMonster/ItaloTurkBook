@@ -77,12 +77,14 @@ async function dateSelector(page, date) {
     }
 
     const selectDay = async (day) => {
+      // Get list of all available days
       const availableDays = await page.$$('#datepicker a.ui-state-default')
       for (let i = 0; i < availableDays.length; i++) {
         const node = availableDays[i]
         const currentDay = await node.evaluate((el) => el.innerText)
         if (currentDay == day) {
           node.evaluate((el) => el.click())
+          console.log('Day is available')
           break
         } else if (i + 1 === availableDays.length) {
           console.log('Selected day is not available for booking')
@@ -93,6 +95,12 @@ async function dateSelector(page, date) {
     await selectYear(date.getYear())
     await selectMonth(date.getMonth())
     await selectDay(date.getDate())
+
+    // Go to next page
+    await page.$eval(
+      '#CustomerAccountDashboardMasterCustomerAccountMieiAcquistiMieiCarnetNewView_ControlGroupCustomerAccountMieiAcquistiMieiCarnetNewView_ControlGroupCarnetProductsCustomerAccountMieiAcquistiMieiCarnetNewView_ButtonSubmit',
+      (el) => el.click(),
+    )
   } else {
     console.error('Book back in time is not permitted, try to ask to Marty Mcfly')
   }
