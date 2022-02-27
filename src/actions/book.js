@@ -14,46 +14,67 @@ async function book(page) {
   const radioButtons = await page.$$('.risposta input')
   await radioButtons[1].evaluate((radio) => radio.click())
 
+  console.log(new Date())
   await dateSelector(page, new Date())
   // await timeSelector('7:49')
 }
 
 async function dateSelector(page, date) {
-  const pickerMonthSelector = await page.$('#datepicker span.ui-datepicker-month')
-  const pickerMonth = await pickerMonthSelector.evaluate((el) => el.textContent)
-  const pickerYearSelector = await page.$('#datepicker span.ui-datepicker-year')
-  const pickerYear = await pickerYearSelector.evaluate((el) => el.textContent)
   const availableDays = await page.$('#datepicker a.ui-state-default')
 
-  console.log({ pickerMonth, pickerYear })
-
-  const dummyPickerDate = new Date(`1 ${pickerMonth} ${pickerYear}`)
-  console.log({ dummyPickerDate })
-
   const selectYear = async (year) => {
+    const pickerYearSelector = await page.$('#datepicker span.ui-datepicker-year')
+    const pickerYear = await pickerYearSelector.evaluate((el) => el.textContent)
+    const dummyPickerDate = new Date(`1/1/${pickerYear}`)
+
     let currentYear = dummyPickerDate.getYear()
-    while (currentYear !== year) {
+    if (currentYear === year) {
+      console.log('Year is available')
+      return
+    } else {
       // Get all next button classes
       const nextButtonClasses = await page.evaluate(
         () => document.querySelector('#datepicker a.ui-datepicker-next').className,
       )
-      // Checks if button is clickable or not
+      // Checks if next button is clickable or not
       if (nextButtonClasses.includes('ui-state-disabled')) {
         // Button cannot be clicked, so next year is not available
-        break
+        console.error(`Selected year (${year}) is not available`)
+        return
       } else {
-        // Button can be clicked
+        // Next button can be clicked
         const nextButton = await page.$('#datepicker a.ui-datepicker-next')
         await nextButton.evaluate((el) => el.click())
+        selectYear(year)
       }
-      console.error(`Selected year (${year}) is not available`)
     }
   }
 
-  const selectMonth = (month) => {
+  const selectMonth = async (month) => {
+    const pickerMonthSelector = await page.$('#datepicker span.ui-datepicker-month')
+    const pickerMonth = await pickerMonthSelector.evaluate((el) => el.textContent)
+    const dummyPickerDate = new Date(`1 ${pickerMonth} 2021`)
+
     let currentMonth = dummyPickerDate.getMonth()
-    if (currentMonth !== month) {
-      // place next month selector here
+    if (currentMonth === month) {
+      console.log('Month is available')
+      return
+    } else {
+      // Get all next button classes
+      const nextButtonClasses = await page.evaluate(
+        () => document.querySelector('#datepicker a.ui-datepicker-next').className,
+      )
+      // Checks if next button is clickable or not
+      if (nextButtonClasses.includes('ui-state-disabled')) {
+        // Button cannot be clicked, so next year is not available
+        console.error(`Selected month (${month}) is not available`)
+        return
+      } else {
+        // Next button can be clicked
+        const nextButton = await page.$('#datepicker a.ui-datepicker-next')
+        await nextButton.evaluate((el) => el.click())
+        selectMonth(month)
+      }
     }
   }
 
