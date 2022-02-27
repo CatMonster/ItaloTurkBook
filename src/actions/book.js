@@ -14,21 +14,39 @@ async function book(page) {
   const radioButtons = await page.$$('.risposta input')
   await radioButtons[1].evaluate((radio) => radio.click())
 
-  await dateSelector(new Date())
+  await dateSelector(page, new Date())
+  // await timeSelector('7:49')
 }
 
 async function dateSelector(page, date) {
-  const pickerMonth = page.$eval('#datepicker span.ui-datepicker-month')
-  const pickerYear = page.$eval('#datepicker span.ui-datepicker-year')
-  const availableDays = page.$eval('#datepicker a.ui-state-default')
+  const pickerMonthSelector = await page.$('#datepicker span.ui-datepicker-month')
+  const pickerMonth = await pickerMonthSelector.evaluate((el) => el.textContent)
+  const pickerYearSelector = await page.$('#datepicker span.ui-datepicker-year')
+  const pickerYear = await pickerYearSelector.evaluate((el) => el.textContent)
+  const availableDays = await page.$('#datepicker a.ui-state-default')
+
+  console.log({ pickerMonth, pickerYear })
 
   const dummyPickerDate = new Date(`1 ${pickerMonth} ${pickerYear}`)
   console.log({ dummyPickerDate })
 
-  const selectYear = (year) => {
-    let currentYear = dummyPickerDate.getMonth()
-    if (currentYear !== year) {
-      // place next year selector here
+  const selectYear = async (year) => {
+    let currentYear = dummyPickerDate.getYear()
+    while (currentYear !== year) {
+      // Get all next button classes
+      const nextButtonClasses = await page.evaluate(
+        () => document.querySelector('#datepicker a.ui-datepicker-next').className,
+      )
+      // Checks if button is clickable or not
+      if (nextButtonClasses.includes('ui-state-disabled')) {
+        // Button cannot be clicked, so next year is not available
+        break
+      } else {
+        // Button can be clicked
+        const nextButton = await page.$('#datepicker a.ui-datepicker-next')
+        await nextButton.evaluate((el) => el.click())
+      }
+      console.error(`Selected year (${year}) is not available`)
     }
   }
 
@@ -43,6 +61,7 @@ async function dateSelector(page, date) {
     for (let i = 0; i < availableDays.length; i++) {
       if (availableDays[i].innerText == day) {
         availableDays[i].click()
+        break
       } else if (i + 1 === availableDays.length) {
         console.log('Selected day is not available for booking')
       }
@@ -53,5 +72,18 @@ async function dateSelector(page, date) {
   selectMonth(date.getMonth())
   selectDay(date.getDate())
 }
+
+// async function timeSelector(page, departureTime) {
+//   const rows = page.waitForSelector('.risposta .accordion-header', { visible: true, timeout: 0 })
+
+//   for (let i = 0; i < rows.length; i++) {
+//     if (rows[i].evaluate('.layout p').innerText === departureTime) {
+//       rows[i].click()
+
+//       break
+//     }
+//     console.log("Error, can't select trip, requested time not found")
+//   }
+// }
 
 exports.book = book
