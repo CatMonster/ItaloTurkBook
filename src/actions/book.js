@@ -14,13 +14,13 @@ async function book(page) {
   const radioButtons = await page.$$('.risposta input')
   await radioButtons[1].evaluate((radio) => radio.click())
 
-  await dateSelector(page, new Date('28 febbraio 2022'))
+  await dateSelector(page, new Date('17 marzo 2022 23:59:59'))
   await trainSelector(page, '8993')
   await personalInfosFill(page, { phone: '3338749273' })
 }
 
 async function dateSelector(page, date) {
-  if (date > new Date()) {
+  if (date >= new Date()) {
     const selectYear = async (year) => {
       const pickerYearSelector = await page.$('#datepicker span.ui-datepicker-year')
       const pickerYear = await pickerYearSelector.evaluate((el) => el.textContent)
